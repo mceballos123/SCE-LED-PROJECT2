@@ -16,7 +16,7 @@ app=FastAPI()
 leetCodeUrl="http://localhost:8000"
 
 def get_db_file():
-    return 'leetcode.db'`
+    return 'leetcode.db' 
 
 
 db_file=get_db_file()

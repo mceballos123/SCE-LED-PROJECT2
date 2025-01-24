@@ -1,6 +1,7 @@
 import sqlite3
 from tabulate import tabulate
 from fastapi import HTTPException
+from datetime import datetime,timedelta
 def create_table(db_file):
     con=sqlite3.connect(db_file)
 
@@ -166,3 +167,76 @@ def delete_user(db_file,username):
     conn.commit()
     conn.close()
 
+
+
+#-----------------Weekly progress section ----------------------#
+#track user weekly progress to display user leetcode progress(call it once a week), reset user stats to zero and be able to handle new input
+# does not interfer with the user overall stats
+
+def weekly_progress(db_file): # this will make a current week table to track user
+    #make query table that resets the current progress of the user for the week
+    #points =0 , total_solved=0, easy_solved=0, medium_solved=0, hard_solved=0
+    #this should not interfer with the user overall stats,
+
+    conn=sqlite3.connect(db_file)
+    curr=conn.cursor()
+    query_table="""CREATE TABLE IF NOT EXISTS weekly_progress
+                (username TEXT PRIMARY KEY,total_solved INTEGER,points INTEGER,easy_solved 
+                INTEGER DEFAULT 0,medium_solved INTEGER DEFAULT 0,
+                hard_solved INTEGER DEFAULT 0);""" # I'm thinking of adding a week_data variable to keep track of the week
+
+    curr.execute(query_table)
+    print('Weekly progress table created')
+    conn.close()
+
+def add_weekly_progress(db_file,username,total_solved,points,easy_solved,medium_solved,hard_solved):
+    #Add user weekly progress to the table
+    conn=sqlite3.connect(db_file)
+    curr=conn.cursor()
+    query_table="""
+                INSERT INTO weekly_progress(username,total_solved,points,easy_solved,medium_solved,hard_solved)
+                VALUES(?,?,?,?,?,?)
+"""
+    curr.execute(query_table,(username,total_solved,points,easy_solved,medium_solved,hard_solved))
+
+    for current_row in curr.execute('SELECT * FROM weekly_progress'):
+        print(current_row)
+    
+    conn.commit()
+    conn.close()
+
+def weekly_reset(db_file):
+    conn=sqlite3.connect(db_file)
+    curr=conn.cursor()
+    #should update once a week(most likely mondat at 12:00am, new week)
+    #will reset the weekly progress(total solved, points etc) to zero
+    #query table will delete if it is the start of a new week
+    current_date=datetime.today()  
+    new_week=current_date + timedelta(days=7-current_date.weekday())
+       
+    #Resets the user info is the new week == monday 12:00 am 
+    query_table=""" 
+                DELETE FROM weekly_progress 
+                
+            """
+    ""
+    conn.execute(query_table)
+    conn.commit()
+
+    conn.close()
+
+
+def get_weekly_progress(db_file):
+    conn=sqlite3.connect(db_file)
+    curr=conn.cursor()
+    query_table="SELECT * FROM weekly_progress"
+
+    curr.execute(query_table)   
+    data=curr.fetchall()
+
+    for row in data:
+        print(row)
+
+    conn.commit()
+    conn.close()
+    #display the weekly progress of the user

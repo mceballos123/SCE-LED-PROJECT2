@@ -7,7 +7,7 @@ import aiohttp
 import ssl
 import certifi
 from fastapi import HTTPException
-from secureApi import API_KEY
+import constants
 import asyncio
 
 
@@ -30,7 +30,7 @@ async def update_hourly():
 
     for user_entry in db_entries:
         username=user_entry[0]
-        api_key=API_KEY[0] #this is the api key for the first item in the api key, need to find a way to fix this
+        api_key=constants.API_KEY[0] #this is the api key for the first item in the api key, need to find a way to fix this
 
         user=Users(username=username,api_key=api_key) 
         url=f'{leetcode_client_url}/{username}' 
@@ -55,7 +55,7 @@ async def update_hourly():
                 
         update_user(db_file,user.username,user.total_solved,user.points,user.easy_solved,user.medium_solved,user.hard_solved)
 
-        print(f"Updated user{user.username}")
+        print(f"Updated user{user.username}, {user.total_solved}")
 
 
 last=None
